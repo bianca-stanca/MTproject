@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:csv/csv.dart';
 import 'package:flutterapp/data_model/sensor_model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -142,7 +143,24 @@ class DBProvider {
 
     try {
       var res = await req.send();
-      print(res.reasonPhrase);
+      switch (res.reasonPhrase) {
+        case "Created":
+          Fluttertoast.showToast(
+              msg: "File successfully uploaded",
+              toastLength: Toast.LENGTH_LONG);
+          break;
+        case "Unauthorized":
+          Fluttertoast.showToast(
+              msg: "Wrong password", toastLength: Toast.LENGTH_LONG);
+          break;
+        case "Forbidden":
+          Fluttertoast.showToast(
+              msg: "File already exists", toastLength: Toast.LENGTH_LONG);
+          break;
+        default:
+          Fluttertoast.showToast(msg: "Error", toastLength: Toast.LENGTH_LONG);
+      }
+
       print(res.statusCode);
       print('SwitchDrive end $filename');
       return res.reasonPhrase;
@@ -152,35 +170,7 @@ class DBProvider {
     }
   }
 
-  Future<void> _saveCSV(filename, data) async {
-    // List<SensorModel> sensorData =
-    //     await this.getSensorData(); // Take the action table
-    String csv = _convertToCSV(data);
-
-    File fileUser = File(filename);
-    fileUser.writeAsStringSync(csv);
-    print("File created: ${fileUser.existsSync()}");
-  }
-
-  String _convertToCSV(List<SensorModel> sensorData) {
-    List<List<dynamic>> rows = [];
-    rows.add(
-        ["Timestamp", "Acc_X", "Acc_Y", "Acc_Z", "Gyro_X", "Gyro_Y", "Gyro_Z"]);
-    for (int i = 0; i < sensorData.length; i++) {
-      List<dynamic> row = [];
-      row.add(sensorData[i].timestamp);
-      row.add(sensorData[i].accX);
-      row.add(sensorData[i].accY);
-      row.add(sensorData[i].accZ);
-      row.add(sensorData[i].gyroX);
-      row.add(sensorData[i].gyroY);
-      row.add(sensorData[i].gyroZ);
-      rows.add(row);
-    }
-    return ListToCsvConverter().convert(rows);
-  }
-
-  Future<void> save(data) async {
+  Future<void> upload(List<List<dynamic>> data) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Directory documentsDirectory =
         await getApplicationDocumentsDirectory(); // Get right path to save the new format
@@ -191,15 +181,56 @@ class DBProvider {
     String username = prefs.getString(_username);
 
     //Compute filename
-    String time = DateTime.now().toString().substring(0, 16);
+    String time = DateTime.now().toString().substring(0, 19);
     final String fileName = "${username}_Sensor_Data_${time}.csv";
     final String pathUser = dirPath + fileName;
 
     //save csv
-    await _saveCSV(pathUser, data);
-
+    String csv = await _saveCSV(pathUser, data);
     //upload to switchdrive
     var url = 'https://drive.switch.ch/public.php/webdav/';
     _uploadData(url, pathUser, fileName);
+  }
+
+  Future<String> _saveCSV(filename, data) async {
+    // List<SensorModel> sensorData =
+    //     await this.getSensorData(); // Take the action table
+    String csv = _convertToCSV(data);
+    File fileUser = File(filename);
+    fileUser.writeAsStringSync(csv);
+    print("File created: ${fileUser.existsSync()}");
+    return csv;
+  }
+
+  List<List<dynamic>> addHeader() {
+    List<List<dynamic>> rows = [];
+    rows.add(
+        ["Timestamp", "Acc_X", "Acc_Y", "Acc_Z", "Gyro_X", "Gyro_Y", "Gyro_Z"]);
+    return rows;
+  }
+
+  String _convertToCSV(sensorData) {
+    List<List<dynamic>> rows = addHeader();
+    rows.addAll(sensorData);
+    return ListToCsvConverter().convert(rows);
+  }
+
+  Future<void> save(List<SensorModel> sensorData) async {
+    final db = await database;
+    Batch batch = db.batch();
+    print("here");
+    for (var i = 0; i < sensorData.length; i++) {
+      batch.insert("SENSORDATA", {
+        "acc_x": sensorData[i].accX,
+        "acc_y": sensorData[i].accY,
+        "acc_z": sensorData[i].accZ,
+        "gyro_x": sensorData[i].gyroX,
+        "gyro_y": sensorData[i].gyroY,
+        "gyro_z": sensorData[i].gyroZ,
+        "timestamp": sensorData[i].timestamp,
+        "packetId": sensorData[i].packetId
+      });
+    }
+    batch.commit(noResult: true);
   }
 }

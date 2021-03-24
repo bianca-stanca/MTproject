@@ -67,8 +67,6 @@ class _CategoryRouteState extends State<CategoryRoute> {
     return DBProvider.db;
   }
 
-  String _username = "username";
-
   @override
   void initState() {
     _initDb();

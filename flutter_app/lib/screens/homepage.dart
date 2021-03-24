@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutterapp/data_model/sensor_model.dart';
+import 'package:flutterapp/globalValue.dart';
 import 'package:meta/meta.dart';
 import '../utility/category.dart';
 import '../utility/timer.dart';
@@ -22,14 +23,21 @@ class Homepage extends StatefulWidget {
 
   @override
   _HomepageState createState() => _HomepageState();
+
+  static _HomepageState of(BuildContext context) =>
+      context.findAncestorStateOfType();
 }
 
 class _HomepageState extends State<Homepage> {
   String _deviceName = 'Unknown';
   double _voltage = -1;
+  Session session = Session();
+  List<List<dynamic>> sensorEventList = [];
   String _deviceStatus = '';
   bool sampling = false;
   String _event = '';
+  static TimerService _t;
+
   String _button = 'not pressed';
   List<SensorModel> _sensorData = [];
 
@@ -46,6 +54,10 @@ class _HomepageState extends State<Homepage> {
     if (this.mounted) {
       super.initState();
     }
+  }
+
+  isRunning() {
+    return _t != null && _t.isRunning;
   }
 
   Future<void> clearPreferences() async {
@@ -106,7 +118,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   void _disconnectESense() async {
-    await manager.disconnect();
+    if (!_t.isRunning) await manager.disconnect();
     if (this.mounted)
       setState(() {
         _deviceStatus = "disconnected";
@@ -162,6 +174,8 @@ class _HomepageState extends State<Homepage> {
           timestamp: _timestamp,
           packetId: _packetIndex);
       _sensorData.add(sensorElem);
+      sensorEventList
+          .add([_timestamp, _accX, _accY, _accZ, _gyroX, _gyroY, _gyroZ]);
       setState(() {
         _event = event.toString();
       });
@@ -183,7 +197,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   void dispose() {
-    _disconnectESense();
+    // _disconnectESense();
     super.dispose();
   }
 
@@ -203,19 +217,15 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  insertData(TimerService t) async {
+  _insertData() async {
     print("Sensor events length: ${_sensorData.length}");
     var db = DBProvider.db;
-    for (var i = 0; i < _sensorData.length; i++) {
-      await db.addSensorEvent(_sensorData[i]);
-    }
-    await db.save(_sensorData);
-
-    _resetActivity(t);
+    db.upload(sensorEventList);
+    db.save(_sensorData);
+    _resetActivity();
   }
 
-  void _handleActivity(TimerService t) async {
-    var db = DBProvider.db;
+  void _handleActivity() async {
     if (_deviceStatus != "connected") {
       return showDialog<void>(
           context: context,
@@ -239,15 +249,18 @@ class _HomepageState extends State<Homepage> {
                 ]);
           });
     } else {
-      if (!t.isRunning) {
-        t.start();
+      if (!_t.isRunning) {
+        _t.start();
+        session.toggle(_t);
         if (manager.connected) {
           if (!sampling) {
             _startListenToSensorEvents();
           }
         }
       } else {
-        t.stop();
+        _t.stop();
+        session.toggle(_t);
+        _t.reset();
         if (!manager.connected) {
           null;
         } else {
@@ -255,13 +268,13 @@ class _HomepageState extends State<Homepage> {
             _pauseListenToSensorEvents();
           }
         }
-        insertData(t);
+        _insertData();
       }
     }
   }
 
-  void _resetActivity(TimerService t) {
-    t.reset();
+  void _resetActivity() {
+    _t.reset();
     if (!manager.connected) {
       null;
     } else {
@@ -272,19 +285,17 @@ class _HomepageState extends State<Homepage> {
     _sensorData = [];
   }
 
-  Future<void> _neverSatisfied(TimerService t) async {
+  Future<void> _neverSatisfied() async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
-              'Please save your activity before disconnecting your device'),
+          title: Text('Please stop recording before disconnecting'),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text('Go Back'),
               onPressed: () {
-                t.start();
                 Navigator.of(context).pop();
               },
             )
@@ -409,12 +420,14 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     _checkLoginData();
-    var timerService = TimerService.of(context);
+    if (_t == null) {
+      _t = TimerService.of(context);
+    }
 
     return Scaffold(
         body: Center(
             child: AnimatedBuilder(
-                animation: timerService,
+                animation: _t,
                 builder: (context, child) {
                   return SingleChildScrollView(
                     child: Column(
@@ -441,7 +454,7 @@ class _HomepageState extends State<Homepage> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
                               Text(
-                                '0${timerService.currentDuration.toString().split('.')[0]}',
+                                '0${_t.currentDuration.toString().split('.')[0]}',
                                 style: DefaultTextStyle.of(context)
                                     .style
                                     .apply(fontSizeFactor: 6.0),
@@ -461,20 +474,18 @@ class _HomepageState extends State<Homepage> {
                                           ),
                                         ),
                                         child: IconButton(
-                                          icon: !timerService.isRunning
+                                          icon: !_t.isRunning
                                               ? Icon(Icons.play_arrow)
                                               : Icon(Icons.stop),
                                           iconSize: 50.0,
                                           color: Colors.white,
                                           tooltip: 'Start timer',
-                                          onPressed: () =>
-                                              _handleActivity(timerService),
+                                          onPressed: () => _handleActivity(),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  Text(
-                                      !timerService.isRunning ? 'Start' : 'End',
+                                  Text(!_t.isRunning ? 'Start' : 'End',
                                       style: TextStyle(fontSize: 25))
                                 ],
                               ),
@@ -485,9 +496,11 @@ class _HomepageState extends State<Homepage> {
                             child: FloatingActionButton.extended(
                               onPressed: () {
                                 if (_deviceStatus == "connected") {
-                                  if (timerService.isRunning) {
-                                    timerService.stop();
-                                    _neverSatisfied(timerService);
+                                  if (_t.isRunning) {
+                                    // _t.stop();
+                                    // session.toggle(_t);
+                                    // _t.reset();
+                                    _neverSatisfied();
                                   } else {
                                     _disconnectESense();
                                   }

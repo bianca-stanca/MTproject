@@ -1,5 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutterapp/globalValue.dart';
+import 'package:flutterapp/screens/homepage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meta/meta.dart';
 import 'category.dart';
 
@@ -145,18 +148,21 @@ class _BackdropState extends State<Backdrop>
 
   @override
   void didUpdateWidget(Backdrop old) {
-    super.didUpdateWidget(old);
-    if (widget.currentCategory != old.currentCategory) {
-      setState(() {
-        _controller.fling(
-            velocity:
-                _backdropPanelVisible ? -_kFlingVelocity : _kFlingVelocity);
-      });
-    } else if (!_backdropPanelVisible) {
-      setState(() {
-        _controller.fling(velocity: _kFlingVelocity);
-      });
-    }
+    if (!Session().isRunning) {
+      super.didUpdateWidget(old);
+      if (widget.currentCategory != old.currentCategory) {
+        setState(() {
+          _controller.fling(
+              velocity:
+                  _backdropPanelVisible ? -_kFlingVelocity : _kFlingVelocity);
+        });
+      } else if (!_backdropPanelVisible) {
+        setState(() {
+          _controller.fling(velocity: _kFlingVelocity);
+        });
+      }
+    } else
+      print("running");
   }
 
   @override
@@ -172,9 +178,17 @@ class _BackdropState extends State<Backdrop>
   }
 
   void _toggleBackdropPanelVisibility() {
-    FocusScope.of(context).requestFocus(FocusNode());
-    _controller.fling(
-        velocity: _backdropPanelVisible ? -_kFlingVelocity : _kFlingVelocity);
+    print("here");
+    if (Session().isRunning) {
+      print("entered if");
+      Fluttertoast.showToast(
+        msg: "Cannot do this while recording",
+      );
+    } else {
+      FocusScope.of(context).requestFocus(FocusNode());
+      _controller.fling(
+          velocity: _backdropPanelVisible ? -_kFlingVelocity : _kFlingVelocity);
+    }
   }
 
   double get _backdropHeight {

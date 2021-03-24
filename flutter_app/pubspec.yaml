@@ -32,7 +32,7 @@ dependencies:
   charts_flutter: ^0.10.0
   http: ^0.12.2
   workmanager: ^0.2.0
-  path_provider: ^1.6.27
+  path_provider: ^1.6.28
   csv: ^4.1.0
   noise_meter: ^1.2.0+1
   storage_path: ^0.2.0
