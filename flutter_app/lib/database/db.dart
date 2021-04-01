@@ -2,18 +2,16 @@ import 'dart:convert';
 
 import 'package:csv/csv.dart';
 import 'package:flutterapp/data_model/sensor_model.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:tflite/tflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class DBProvider {
   String _username = "username";
@@ -180,7 +178,12 @@ class DBProvider {
     return ListToCsvConverter().convert(rows);
   }
 
+  void models() async {
+    String res = await Tflite.loadModel(model: "assets/models/head.tflite");
+  }
+
   Future<void> save(data) async {
+    models();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     Directory documentsDirectory =
         await getApplicationDocumentsDirectory(); // Get right path to save the new format

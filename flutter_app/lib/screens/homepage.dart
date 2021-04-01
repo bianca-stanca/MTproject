@@ -406,6 +406,11 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  void modelstry() {
+    var db = DBProvider.db;
+    db.models();
+  }
+
   @override
   Widget build(BuildContext context) {
     _checkLoginData();
@@ -449,6 +454,9 @@ class _HomepageState extends State<Homepage> {
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
+                                  TextButton(
+                                      onPressed: () => modelstry(),
+                                      child: Text("Models")),
                                   Material(
                                     child: Center(
                                       child: Ink(
