@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "STRACK",
+      title: "ACROB",
       theme: ThemeData(
         textTheme: Theme.of(context).textTheme.apply(
               bodyColor: Colors.black,

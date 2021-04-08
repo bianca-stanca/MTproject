@@ -436,7 +436,7 @@ class _HomepageState extends State<Homepage> {
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Container(
-                                height: 200,
+                                height: 150,
                                 child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:

@@ -136,7 +136,7 @@ class _CategoryRouteState extends State<CategoryRoute> {
           : _currentWidget,
       backPanel: listView,
       frontTitle: Image.asset(
-        'assets/images/strack_logo.png',
+        'assets/images/acrob_logo.png',
         height: 35,
         alignment: Alignment(1.0, 1.0),
       ),
