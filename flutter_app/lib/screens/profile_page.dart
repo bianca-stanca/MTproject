@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:sqflite/sqflite.dart';
 import '../utility/category.dart';
 import 'package:flutterapp/utility/category_route.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../database/db.dart';
 
 class ProfilePage extends StatefulWidget {
   final Category category;
@@ -18,9 +20,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final myController = TextEditingController();
-  bool _validate = true;
   final eSenseController = TextEditingController();
-  bool _validateeSense = true;
   String _usernameKey = "username";
   String _eSenseNameKey = "eSense";
   String _username = "";
@@ -28,10 +28,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _loadData() async {
     await SharedPreferences.getInstance().then((value) {
-      setState(() {
-        _username = value.getString(_usernameKey);
-        _eSense = value.getString(_eSenseNameKey);
-      });
+      if (this.mounted)
+        setState(() {
+          _username = value.getString(_usernameKey);
+          _eSense = value.getString(_eSenseNameKey);
+        });
     });
   }
 
@@ -182,13 +183,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             padding: EdgeInsets.all(10.0),
             shape: CircleBorder(),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Text(
-              _username,
-              style: TextStyle(fontSize: 17, color: Colors.white),
-            ),
           )
         ],
       ),
@@ -254,6 +248,22 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     ));
 
+    final _uploadButton = new Container(
+        child: Padding(
+      padding: EdgeInsets.all(10.0),
+      child: TextButton(
+        child: Text(
+          "Upload Data",
+          style: TextStyle(color: Colors.white),
+        ),
+        style: TextButton.styleFrom(backgroundColor: Color(0xFFFFA41C)),
+        onPressed: () {
+          var db = DBProvider.db;
+          db.uploadAllData();
+        },
+      ),
+    ));
+
     Future<void> _neverSatisfied() async {
       return showDialog<void>(
         context: context,
@@ -270,7 +280,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text('Delete'),
                 onPressed: () {
                   // _deleteUser();
@@ -288,7 +298,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
-              FlatButton(
+              TextButton(
                 child: Text('Cancel'),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -311,6 +321,8 @@ class _ProfilePageState extends State<ProfilePage> {
           _usernameInfo,
           new Divider(height: 20.0, color: Colors.white),
           _earbudsInfo,
+          new Divider(height: 60.0, color: Colors.white),
+          _uploadButton,
         ],
       ))
     ]));

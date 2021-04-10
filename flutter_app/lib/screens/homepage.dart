@@ -174,8 +174,16 @@ class _HomepageState extends State<Homepage> {
           timestamp: _timestamp,
           packetId: _packetIndex);
       _sensorData.add(sensorElem);
-      sensorEventList
-          .add([_timestamp, _accX, _accY, _accZ, _gyroX, _gyroY, _gyroZ]);
+      sensorEventList.add([
+        _timestamp,
+        _accX,
+        _accY,
+        _accZ,
+        _gyroX,
+        _gyroY,
+        _gyroZ,
+        _packetIndex
+      ]);
       setState(() {
         _event = event.toString();
       });
@@ -434,19 +442,25 @@ class _HomepageState extends State<Homepage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           Padding(
-                            padding: const EdgeInsets.all(20.0),
+                            padding:
+                                const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0),
                             child: Container(
                                 height: 150,
-                                child: Row(
+                                child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: <Widget>[
-                                      Text("Record a session",
-                                          softWrap: false,
+                                      Text("Welcome!",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 30,
+                                              color: Color(0xFF448AFF))),
+                                      Text("Please record a session",
+                                          softWrap: false,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
                                               color: Color(0xFF448AFF))),
                                     ])),
                           ),
@@ -492,7 +506,7 @@ class _HomepageState extends State<Homepage> {
                             ],
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(100.0),
+                            padding: const EdgeInsets.all(40.0),
                             child: FloatingActionButton.extended(
                               onPressed: () {
                                 if (_deviceStatus == "connected") {

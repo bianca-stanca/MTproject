@@ -137,10 +137,6 @@ class DBProvider {
     req.files.add(http.MultipartFile.fromBytes(
         'txt', File(path).readAsBytesSync(),
         contentType: MediaType('txt', 'csv'), filename: filename));
-    // req.files.add(http.MultipartFile.fromString(
-    //     'txt', File(path).readAsStringSync(),
-    //     contentType: MediaType('txt', 'csv'), filename: filename));
-
     try {
       var res = await req.send();
       switch (res.reasonPhrase) {
@@ -204,9 +200,35 @@ class DBProvider {
 
   List<List<dynamic>> addHeader() {
     List<List<dynamic>> rows = [];
-    rows.add(
-        ["Timestamp", "Acc_X", "Acc_Y", "Acc_Z", "Gyro_X", "Gyro_Y", "Gyro_Z"]);
+    rows.add([
+      "Timestamp",
+      "Acc_X",
+      "Acc_Y",
+      "Acc_Z",
+      "Gyro_X",
+      "Gyro_Y",
+      "Gyro_Z",
+      "PacketID"
+    ]);
     return rows;
+  }
+
+  void uploadAllData() async {
+    var data = await getSensorData();
+    List<List<dynamic>> listData = [];
+    data.forEach((element) {
+      listData.add([
+        element.timestamp,
+        element.accX,
+        element.accY,
+        element.accZ,
+        element.gyroX,
+        element.gyroY,
+        element.gyroZ,
+        element.packetId
+      ]);
+    });
+    upload(listData);
   }
 
   String _convertToCSV(sensorData) {
@@ -218,7 +240,6 @@ class DBProvider {
   Future<void> save(List<SensorModel> sensorData) async {
     final db = await database;
     Batch batch = db.batch();
-    print("here");
     for (var i = 0; i < sensorData.length; i++) {
       batch.insert("SENSORDATA", {
         "acc_x": sensorData[i].accX,

@@ -39,6 +39,8 @@ dependencies:
   permission_handler: ^5.0.1+1
   flutter_secure_storage: ^3.3.0
   shared_preferences: ^0.5.12+4
+  mailto: ^1.1.0
+  url_launcher: ^6.0.3
 
 
 

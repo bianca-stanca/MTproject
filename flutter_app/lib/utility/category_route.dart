@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp/screens/info_page.dart';
 import 'package:flutterapp/screens/profile_page.dart';
 import 'package:flutterapp/screens/homepage.dart';
 import 'package:flutterapp/database/db.dart';
@@ -23,10 +24,7 @@ class _CategoryRouteState extends State<CategoryRoute> {
   Category _currentCategory;
   Widget _currentWidget;
   final _categories = <Category>[];
-  static const _categoryNames = <String>[
-    'Home',
-    'Account',
-  ];
+  static const _categoryNames = <String>['Home', 'Account', 'Info'];
   static const _baseColors = <ColorSwatch>[
     ColorSwatch(0xFF448AFF, {
       'highlight': Color(0xFF82B1FF),
@@ -36,15 +34,15 @@ class _CategoryRouteState extends State<CategoryRoute> {
       'highlight': Color(0xFFFFD28E),
       'splash': Color(0xFFFFA41C),
     }),
-    ColorSwatch(0xFFFFB7DE, {
-      'highlight': Color(0xFFFFB7DE),
-      'splash': Color(0xFFF94CBF),
-    }),
-    ColorSwatch(0xFFCE9A9A, {
-      'highlight': Color(0xFFF94D56),
-      'splash': Color(0xFF912D2D),
-      'error': Color(0xFF912D2D),
-    }),
+    // ColorSwatch(0xFFFFB7DE, {
+    //   'highlight': Color(0xFFFFB7DE),
+    //   'splash': Color(0xFFF94CBF),
+    // }),
+    // ColorSwatch(0xFFCE9A9A, {
+    //   'highlight': Color(0xFFF94D56),
+    //   'splash': Color(0xFF912D2D),
+    //   'error': Color(0xFF912D2D),
+    // }),
     ColorSwatch(0xFFD7C0E2, {
       'highlight': Color(0xFFD7C0E2),
       'splash': Color(0xFFCA90E5),
@@ -56,9 +54,8 @@ class _CategoryRouteState extends State<CategoryRoute> {
   ];
   static const _icons = <IconData>[
     Icons.home,
-    Icons.book,
     Icons.person,
-    Icons.headset_mic
+    Icons.info,
   ];
 
   bool sampling = false;
@@ -71,6 +68,8 @@ class _CategoryRouteState extends State<CategoryRoute> {
   void initState() {
     _initDb();
     super.initState();
+    print("Categories: ");
+    print(_categoryNames.length);
     for (var i = 0; i < _categoryNames.length; i++) {
       var category = Category(
         name: _categoryNames[i],
@@ -94,6 +93,10 @@ class _CategoryRouteState extends State<CategoryRoute> {
         );
       } else if (category.name == "Account") {
         _currentWidget = ProfilePage(
+          category: _currentCategory,
+        );
+      } else if (category.name == "Info") {
+        _currentWidget = InfoPage(
           category: _currentCategory,
         );
       }
