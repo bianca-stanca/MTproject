@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.iml" filepath="$PROJECT_DIR$/.idea/modules/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/android.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/android.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1328740255/android.audio_streamer.iml" filepath="$PROJECT_DIR$/.idea/modules/1328740255/android.audio_streamer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-86998290/android.esense_flutter.iml" filepath="$PROJECT_DIR$/.idea/modules/-86998290/android.esense_flutter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-130599066/android.flutter_secure_storage.iml" filepath="$PROJECT_DIR$/.idea/modules/-130599066/android.flutter_secure_storage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-199940683/android.fluttertoast.iml" filepath="$PROJECT_DIR$/.idea/modules/-199940683/android.fluttertoast.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1348135323/android.path_provider.iml" filepath="$PROJECT_DIR$/.idea/modules/1348135323/android.path_provider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1534309972/android.permission_handler.iml" filepath="$PROJECT_DIR$/.idea/modules/-1534309972/android.permission_handler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1087434738/android.shared_preferences.iml" filepath="$PROJECT_DIR$/.idea/modules/1087434738/android.shared_preferences.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1416079410/android.sqflite.iml" filepath="$PROJECT_DIR$/.idea/modules/-1416079410/android.sqflite.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2006648208/android.storage_path.iml" filepath="$PROJECT_DIR$/.idea/modules/2006648208/android.storage_path.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-400030997/android.workmanager.iml" filepath="$PROJECT_DIR$/.idea/modules/-400030997/android.workmanager.iml" />
+    </modules>
+  </component>
+</project>
